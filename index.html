@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Crop Advisor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Optional: Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #050816;
+      --bg-soft: #0f172a;
+      --bg-card: #020617;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.2);
+      --accent-2: #22d3ee;
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border: #1f2937;
+      --danger: #ef4444;
+      --radius-xl: 18px;
+      --radius-lg: 12px;
+      --radius-full: 999px;
+      --shadow-soft: 0 20px 50px rgba(15, 23, 42, 0.75);
+    }
+
+    body {
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #1e293b 0, #020617 45%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1280px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(2,6,23,0.98));
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: var(--shadow-soft);
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Glow effect */
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(34,197,94,0.14), transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(56,189,248,0.16), transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .left-panel,
+    .right-panel {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      padding: 20px 24px 24px;
+      border-right: 1px solid rgba(15,23,42,0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      backdrop-filter: blur(12px);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #22c55e, #15803d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.5), 0 12px 30px rgba(22,163,74,0.6);
+    }
+
+    .brand-text-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .brand-text-title span.highlight {
+      color: var(--accent);
+    }
+
+    .brand-text-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(34,197,94,0.3);
+    }
+
+    .pill-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15,23,42,0.8);
+    }
+
+    /* Hero */
+    .hero {
+      margin-top: 4px;
+    }
+
+    .hero-title {
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title span.gradient {
+      background: linear-gradient(to right, #22c55e, #22d3ee);
+      -background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 6px;
+      max-width: 420px;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .hero-tag {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15,23,42,0.85);
+    }
+
+    /* Main Content */
+    .content {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+      margin-top: 6px;
+      height: 100%;
+    }
+
+    .section-card {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(34,197,94,0.08), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(34,211,238,0.08), transparent 65%),
+                  rgba(15,23,42,0.9);
+      padding: 12px 14px;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.7);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 0 2px rgba(34,197,94,0.4);
+    }
+
+    .section-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 2px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .form-label span.unit {
+      color: #6b7280;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.9);
+      padding: 7px 9px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: #6b7280;
+    }
+
+    .form-textarea {
+      resize: none;
+      min-height: 60px;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.6), 0 0 0 8px rgba(34,197,94,0.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(55,65,81,0.8);
+      padding: 7px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      background: rgba(15,23,42,0.85);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-color: rgba(34,197,94,0.1);
+      color: #ecfdf5;
+      box-shadow: 0 10px 30px rgba(22,163,74,0.7);
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px) scale(1.01);
+      box-shadow: 0 16px 40px rgba(22,163,74,0.8);
+    }
+
+    .btn-ghost {
+      background: transparent;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(148,163,184,0.8);
+      color: var(--text);
+    }
+
+    .btn-icon {
+      font-size: 14px;
+    }
+
+    /* RECOMMENDATIONS */
+    .recommendation-body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .recommendation-main {
+      border-radius: var(--radius-lg);
+      border: 1px dashed rgba(55,65,81,0.9);
+      padding: 10px 10px 9px;
+      background: rgba(15,23,42,0.9);
+    }
+
+    .recommendation-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .recommendation-chip {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(52,211,153,0.7);
+      background: rgba(6,95,70,0.45);
+      color: #a7f3d0;
+    }
+
+    .recommendation-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+
+    .crop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .crop-card {
+      border-radius: 11px;
+      border: 1px solid rgba(55,65,81,0.8);
+      background: radial-gradient(circle at top, rgba(34,197,94,0.18), transparent 60%),
+                  rgba(15,23,42,0.95);
+      padding: 7px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .crop-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(15,23,42,0.7));
+      mix-blend-mode: soft-light;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .crop-name {
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1;
+    }
+
+    .crop-score {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(22,163,74,0.8);
+      background: rgba(22,163,74,0.25);
+      color: #bbf7d0;
+    }
+
+    .crop-meta {
+      font-size: 10px;
+      color: #9ca3af;
+      display: flex;
+      justify-content: space-between;
+      z-index: 1;
+    }
+
+    .crop-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .crop-meta span::before {
+      content: "•";
+      font-size: 11px;
+    }
+
+    .recommendation-side {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(55,65,81,0.9);
+      padding: 8px 9px;
+      background: rgba(15,23,42,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .legend-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,0.9);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .legend-color-alt {
+      background: var(--accent-2);
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .stat-pill {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px dashed rgba(55,65,81,0.9);
+    }
+
+    .stat-pill strong {
+      color: var(--accent);
+    }
+
+    .risk-pill {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: rgba(127,29,29,0.6);
+      color: #fecaca;
+    }
+
+    /* FOOTER INFO */
+    .footer-info {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .footer-info span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.35);
+    }
+
+    /* RIGHT PANEL: AI CHAT */
+    .right-panel {
+      padding: 18px 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.08), transparent 60%),
+                  radial-gradient(circle at bottom, rgba(34,211,238,0.12), transparent 60%),
+                  #020617;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .chat-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .chat-title {
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chat-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(96,165,250,0.9);
+      background: rgba(30,64,175,0.7);
+      color: #bfdbfe;
+    }
+
+    .chat-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .chat-status-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .chat-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.3);
+    }
+
+    .chat-mode-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,0.8);
+      background: rgba(15,23,42,0.85);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .chat-mode-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent-2);
+    }
+
+    .chat-card {
+      flex: 1;
+      border-radius: 16px;
+      border: 1px solid rgba(30,64,175,0.65);
+      background:
+        radial-gradient(circle at 0 0, rgba(59,130,246,0.3), transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(34,197,94,0.2), transparent 55%),
+        rgba(15,23,42,0.96);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chat-card::before {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(56,189,248,0.25), transparent 70%);
+      top: -80px;
+      right: -60px;
+      opacity: 0.65;
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    .chat-card-header {
+      padding: 10px 12px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chat-bot-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #22c55e, #0f766e);
+      box-shadow: 0 0 0 1px rgba(191,219,254,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+    }
+
+    .chat-bot-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      font-size: 11px;
+    }
+
+    .chat-bot-name {
+      font-weight: 500;
+    }
+
+    .chat-bot-mini {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #bfdbfe;
+    }
+
+    .chat-mini-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .chat-card-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-size: 10px;
+    }
+
+    .chat-card-badges span {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(129,140,248,0.8);
+      background: rgba(30,64,175,0.7);
+      color: #e0e7ff;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 8px 10px 2px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scrollbar-width: thin;
+    }
+
+    .chat-msg {
+      max-width: 80%;
+      border-radius: 12px;
+      padding: 7px 9px;
+      font-size: 12px;
+      line-height: 1.4;
+      position: relative;
+    }
+
+    .chat-msg-bot {
+      align-self: flex-start;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(96,165,250,0.8);
+      box-shadow: 0 10px 25px rgba(15,23,42,0.9);
+    }
+
+    .chat-msg-user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #22c55e, #0f766e);
+      color: #ecfdf5;
+      box-shadow: 0 10px 25px rgba(5,46,22,0.8);
+    }
+
+    .chat-msg-meta {
+      margin-top: 3px;
+      font-size: 9px;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-quick-row {
+      padding: 2px 10px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chat-quick-btn {
+      font-size: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--text-soft);
+    }
+
+    .chat-quick-btn:hover {
+      border-color: rgba(191,219,254,0.9);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .chat-input-row {
+      margin-top: auto;
+      padding: 8px 10px 10px;
+      border-top: 1px solid rgba(30,64,175,0.7);
+      background: linear-gradient(to top, rgba(15,23,42,0.96), transparent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .chat-input {
+      width: 100%;
+      padding: 7px 34px 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(107,114,128,0.9);
+      background: rgba(15,23,42,0.97);
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .chat-input::placeholder {
+      color: #6b7280;
+    }
+
+    .chat-input:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.9), 0 0 0 8px rgba(37,99,235,0.3);
+    }
+
+    .chat-input-right-icon {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      opacity: 0.65;
+    }
+
+    .chat-send-btn {
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(22,163,74,0.9);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .chat-send-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 16px 40px rgba(22,163,74,1);
+    }
+
+    .chat-send-btn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 8px 24px rgba(22,163,74,0.85);
+    }
+
+    .chat-footer-note {
+      font-size: 10px;
+      color: var(--text-soft);
+      text-align: right;
+      margin-top: 2px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 980px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .left-panel {
+        border-right: none;
+        border-bottom: 1px solid rgba(15,23,42,0.9);
+      }
+
+      .recommendation-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 8px;
+      }
+
+      .app-shell {
+        border-radius: 20px;
+      }
+
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- LEFT: Crop Advisor -->
+    <div class="left-panel">
+      <div class="top-bar">
+        <div class="brand">
+          <div class="brand-logo">SC</div>
+          <div>
+            <div class="brand-text-title">
+              Smart<span class="highlight">Crop</span>
+            </div>
+            <div class="brand-text-sub">AI-powered crop recommendations</div>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <div class="pill">
+            <div class="pill-dot"></div>
+            <span>AI Advisor Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-title">
+          Plan your next <span class="gradient">ideal crop</span>
+        </div>
+        <p class="hero-subtitle">
+          Enter your soil profile, expected weather, and basic field details. SmartCrop will suggest the
+          most suitable crops and give you AI guidance in real-time.
+        </p>
+        <div class="hero-tags">
+          <div class="hero-tag">Soil &amp; Weather Intelligence</div>
+          <div class="hero-tag">Yield &amp; Market Score</div>
+          <div class="hero-tag">Farmer-friendly UI</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Section 1: Input -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-dot"></div>
+              Field &amp; Soil Profile
+            </div>
+            <div class="pill-badge">Step 1 • Data Input</div>
+          </div>
+          <p class="section-subtitle">Describe your field conditions so the AI can analyze crop suitability.</p>
+
+          <div class="input-grid">
+            <div class="form-field">
+              <label class="form-label">
+                Soil Type
+              </label>
+              <select class="form-select" id="soilType">
+                <option value="">Select type</option>
+                <option value="loamy">Loamy</option>
+                <option value="clay">Clay</option>
+                <option value="sandy">Sandy</option>
+                <option value="silty">Silty</option>
+                <option value="peaty">Peaty</option>
+                <option value="chalky">Chalky</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Nitrogen (N) <span class="unit">kg/ha</span>
+              </label>
+              <input class="form-input" id="nValue" type="number" placeholder="e.g. 120" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Phosphorus (P) <span class="unit">kg/ha</span>
+              </label>
+              <input class="form-input" id="pValue" type="number" placeholder="e.g. 60" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Potassium (K) <span class="unit">kg/ha</span>
+              </label>
+              <input class="form-input" id="kValue" type="number" placeholder="e.g. 45" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Soil pH
+              </label>
+              <input class="form-input" id="phValue" type="number" step="0.1" placeholder="e.g. 6.5" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Field Size <span class="unit">acres</span>
+              </label>
+              <input class="form-input" id="fieldSize" type="number" step="0.1" placeholder="e.g. 2.5" />
+            </div>
+          </div>
+
+          <div class="input-grid" style="margin-top: 10px;">
+            <div class="form-field">
+              <label class="form-label">
+                Upcoming Season
+              </label>
+              <select class="form-select" id="season">
+                <option value="">Select</option>
+                <option value="kharif">Kharif</option>
+                <option value="rabi">Rabi</option>
+                <option value="summer">Summer</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Rainfall (expected) <span class="unit">mm</span>
+              </label>
+              <input class="form-input" id="rainfall" type="number" placeholder="e.g. 800" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">
+                Market Preference
+              </label>
+              <select class="form-select" id="marketPreference">
+                <option value="">Balanced</option>
+                <option value="highValue">High value crops</option>
+                <option value="lowRisk">Low risk crops</option>
+                <option value="shortDuration">Short duration crops</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top: 10px;">
+            <label class="form-label">
+              Notes / Constraints
+              <span class="unit">irrigation, budget, crop history...</span>
+            </label>
+            <textarea class="form-textarea" id="notes" placeholder="Mention irrigation availability, pests, previous crops, or any specific constraints."></textarea>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-ghost" type="button" id="clearForm">
+              <span class="btn-icon">↺</span> Reset
+            </button>
+            <button class="btn btn-primary" type="button" id="analyzeBtn">
+              <span class="btn-icon">⚡</span> Analyze &amp; Recommend
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 2: Recommendations -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-dot"></div>
+              Recommended Crops
+            </div>
+            <div class="pill-badge">Step 2 • AI Suggestions</div>
+          </div>
+          <p class="section-subtitle">
+            Based on your inputs, SmartCrop ranks crops using a combined soil, climate, and market suitability score.
+          </p>
+
+          <div class="recommendation-body">
+            <div class="recommendation-main" id="recommendationMain">
+              <div class="recommendation-title">
+                Top matches for your field
+                <div class="recommendation-chip" id="overallScore">Overall Suitability: 86%</div>
+              </div>
+              <p class="recommendation-sub">
+                These are example crops. After connecting your backend/AI model, this list will update dynamically
+                based on real analysis.
+              </p>
+
+              <div class="crop-grid" id="cropGrid">
+                <div class="crop-card">
+                  <div class="crop-name">
+                    <span>Wheat</span>
+                    <span class="crop-score">Suitability 92%</span>
+                  </div>
+                  <div class="crop-meta">
+                    <span>Soil match: High</span>
+                    <span>Market: Stable</span>
+                  </div>
+                </div>
+
+                <div class="crop-card">
+                  <div class="crop-name">
+                    <span>Rice</span>
+                    <span class="crop-score">Suitability 88%</span>
+                  </div>
+                  <div class="crop-meta">
+                    <span>Water demand: High</span>
+                    <span>Price: Medium</span>
+                  </div>
+                </div>
+
+                <div class="crop-card">
+                  <div class="crop-name">
+                    <span>Maize</span>
+                    <span class="crop-score">Suitability 83%</span>
+                  </div>
+                  <div class="crop-meta">
+                    <span>Duration: Medium</span>
+                    <span>Risk: Low</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="recommendation-side">
+              <div class="legend-row">
+                <div class="legend-pill">
+                  <div class="legend-color"></div>
+                  Soil &amp; climate fit
+                </div>
+                <div class="legend-pill">
+                  <div class="legend-color legend-color-alt"></div>
+                  Market potential
+                </div>
+              </div>
+
+              <div class="stat-row">
+                <div class="stat-pill">
+                  Soil score: <strong id="soilScore">8.7/10</strong>
+                </div>
+                <div class="stat-pill">
+                  Market score: <strong id="marketScore">7.9/10</strong>
+                </div>
+              </div>
+
+              <div class="stat-row">
+                <div class="stat-pill">
+                  Water risk: <span id="waterRiskLabel" style="color:#fde68a;">Moderate</span>
+                </div>
+                <div class="risk-pill">
+                  Pest alert: <span id="pestAlertLabel">Normal</span>
+                </div>
+              </div>
+
+              <p>
+                Use the AI chat on the right to ask:
+                <br />
+                • Why a specific crop is recommended<br />
+                • How to improve soil health<br />
+                • What if you change fertilizer or irrigation
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Footer Info -->
+        <div class="footer-info">
+          <span>
+            <div class="status-dot"></div>
+            Real-time AI reasoning enabled (UI only — connect your backend for live results)
+          </span>
+          <span>
+            Last simulated analysis: <span id="lastAnalysisTime">Not run yet</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: AI Chat Box -->
+    <div class="right-panel">
+      <div class="chat-header">
+        <div class="chat-title-block">
+          <div class="chat-title">
+            AI Field Assistant
+            <span class="chat-badge">Beta</span>
+          </div>
+          <p class="chat-subtitle">
+            Ask anything about crop choice, fertilizer plan, irrigation schedule, and more.
+          </p>
+        </div>
+        <div>
+          <div class="chat-status-row">
+            <div class="chat-status-dot"></div>
+            <span>Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-mode-pill">
+        <div class="chat-mode-dot"></div>
+        Mode: Crop Recommendation &amp; Advisory
+      </div>
+
+      <div class="chat-card">
+        <div class="chat-card-header">
+          <div class="chat-bot-info">
+            <div class="chat-avatar">AI</div>
+            <div class="chat-bot-meta">
+              <span class="chat-bot-name">SmartCrop Advisor</span>
+              <span class="chat-bot-mini">
+                <span class="chat-mini-dot"></span>
+                Uses your field data from the left panel
+              </span>
+            </div>
+          </div>
+          <div class="chat-card-badges">
+            <span>Trained on agronomy &amp; best practices</span>
+            <span>Explainability: Enabled</span>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-msg chat-msg-bot">
+            Hi! 👋 I’m your SmartCrop AI advisor.
+            <div class="chat-msg-meta">
+              <span>Tip:</span> Fill the field details on the left and press
+              <strong>Analyze &amp; Recommend</strong>, then ask me <em>“Why is this crop best for me?”</em>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-quick-row">
+          <button class="chat-quick-btn" type="button">
+            Why did you suggest wheat for my field?
+          </button>
+          <button class="chat-quick-btn" type="button">
+            Suggest an irrigation schedule for next month.
+          </button>
+          <button class="chat-quick-btn" type="button">
+            How can I improve soil health for better yield?
+          </button>
+        </div>
+
+        <div class="chat-input-row">
+          <div class="chat-input-wrapper">
+            <input
+              id="chatInput"
+              class="chat-input"
+              type="text"
+              placeholder="Ask the AI about crops, fertilizers, pests, or weather impact..."
+            />
+            <span class="chat-input-right-icon">⌨</span>
+          </div>
+          <button class="chat-send-btn" id="chatSendBtn" type="button" title="Send">
+            ➤
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-footer-note">
+        This is the front-end UI. Connect it to your backend (Flask / Node / etc.) to get real AI answers.
+      </div>
+    </div>
+  </div>
+
+ <script>
+  // ========== LEFT PANEL: ANALYSIS (demo only for now) ==========
+
+  function updateLastAnalysisTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString();
+    const el = document.getElementById("lastAnalysisTime");
+    if (el) el.textContent = timeString;
+  }
+
+  document.getElementById("analyzeBtn").addEventListener("click", function () {
+    document.getElementById("overallScore").textContent = "Overall Suitability: 89%";
+    document.getElementById("soilScore").textContent = "9.1/10";
+    document.getElementById("marketScore").textContent = "8.2/10";
+    document.getElementById("waterRiskLabel").textContent = "Low";
+    document.getElementById("waterRiskLabel").style.color = "#bbf7d0";
+    document.getElementById("pestAlertLabel").textContent = "Watch for stem borer";
+
+    const cropGrid = document.getElementById("cropGrid");
+    cropGrid.innerHTML = `
+      <div class="crop-card">
+        <div class="crop-name">
+          <span>Rice</span>
+          <span class="crop-score">Suitability 94%</span>
+        </div>
+        <div class="crop-meta">
+          <span>Soil match: Very high</span>
+          <span>Market: Strong</span>
+        </div>
+      </div>
+      <div class="crop-card">
+        <div class="crop-name">
+          <span>Maize</span>
+          <span class="crop-score">Suitability 88%</span>
+        </div>
+        <div class="crop-meta">
+          <span>Water: Moderate</span>
+          <span>Risk: Low</span>
+        </div>
+      </div>
+      <div class="crop-card">
+        <div class="crop-name">
+          <span>Pulses</span>
+          <span class="crop-score">Suitability 84%</span>
+        </div>
+        <div class="crop-meta">
+          <span>Fixes nitrogen</span>
+          <span>Price: High</span>
+        </div>
+      </div>
+    `;
+
+    updateLastAnalysisTime();
+
+    addBotMessage(
+      "I’ve analyzed your field data and updated the recommendations. Ask me why a specific crop was chosen."
+    );
+  });
+
+  document.getElementById("clearForm").addEventListener("click", function () {
+    const ids = [
+      "soilType",
+      "nValue",
+      "pValue",
+      "kValue",
+      "phValue",
+      "fieldSize",
+      "season",
+      "rainfall",
+      "marketPreference",
+      "notes",
+    ];
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.tagName === "SELECT" || el.tagName === "INPUT") el.value = "";
+      if (el.tagName === "TEXTAREA") el.value = "";
+    });
+  });
+
+  // ========== RIGHT PANEL: CHAT (CONNECTED TO FLASK) ==========
+
+  const chatMessagesEl = document.getElementById("chatMessages");
+  const chatInputEl = document.getElementById("chatInput");
+  const chatSendBtn = document.getElementById("chatSendBtn");
+
+  function addUserMessage(text) {
+    const msg = document.createElement("div");
+    msg.className = "chat-msg chat-msg-user";
+    msg.textContent = text;
+    chatMessagesEl.appendChild(msg);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  function addBotMessage(text) {
+    const msg = document.createElement("div");
+    msg.className = "chat-msg chat-msg-bot";
+    msg.innerHTML = text;
+    chatMessagesEl.appendChild(msg);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  function addLoadingMessage() {
+    const msg = document.createElement("div");
+    msg.className = "chat-msg chat-msg-bot";
+    msg.dataset.loading = "true";
+    msg.textContent = "Thinking...";
+    chatMessagesEl.appendChild(msg);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    return msg;
+  }
+
+  async function handleSend() {
+    const text = chatInputEl.value.trim();
+    if (!text) return;
+
+    addUserMessage(text);
+    chatInputEl.value = "";
+
+    const loadingMsg = addLoadingMessage();
+    chatSendBtn.disabled = true;
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+
+      const data = await response.json();
+
+      if (loadingMsg && loadingMsg.parentNode) {
+        loadingMsg.parentNode.removeChild(loadingMsg);
+      }
+
+      if (!response.ok) {
+        addBotMessage("Error from server: " + (data.error || "Unknown error"));
+        return;
+      }
+
+      addBotMessage(data.answer || "No answer received from server.");
+    } catch (err) {
+      console.error("Network / fetch error:", err);
+      if (loadingMsg && loadingMsg.parentNode) {
+        loadingMsg.parentNode.removeChild(loadingMsg);
+      }
+      addBotMessage("I couldn't reach the server. Make sure Flask is running on port 5000.");
+    } finally {
+      chatSendBtn.disabled = false;
+    }
+  }
+
+  chatSendBtn.addEventListener("click", handleSend);
+
+  chatInputEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  document.querySelectorAll(".chat-quick-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      chatInputEl.value = btn.textContent.trim();
+      handleSend();
+    });
+  });
+</script>
+
+</body>
+</html>
